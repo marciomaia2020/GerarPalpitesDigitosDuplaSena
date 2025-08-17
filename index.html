@@ -25,6 +25,11 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
         .loading-circle {
             width: 80px;
             height: 80px;
@@ -85,6 +90,31 @@
             background: #6b7280;
             opacity: 0.4;
             cursor: not-allowed;
+        }
+
+        /* Destacar números pares/ímpares */
+        .numero-duplasena.par {
+            border: 2px solid #10b981;
+        }
+        .numero-duplasena.impar {
+            border: 2px solid #8b5cf6;
+        }
+
+        /* Contador de pares/ímpares com animação */
+        .contador-destaque {
+            animation: bounce 1s ease-in-out;
+        }
+        
+        .meta-atingida {
+            background: linear-gradient(45deg, #10b981, #34d399) !important;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        
+        .meta-excedida {
+            background: linear-gradient(45deg, #ef4444, #f87171) !important;
+            color: white;
+            animation: pulse 0.5s infinite;
         }
         
         .jogo-card {
@@ -252,9 +282,50 @@
                         </div>
                     </div>
 
-                    <!-- Análise do Jogo Atual -->
+                    <!-- 🎯 CONTADOR DE PARES/ÍMPARES BEM DESTACADO -->
+                    <div class="mb-6 p-5 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 border-4 border-pink-400 rounded-xl shadow-lg">
+                        <div class="text-xl font-bold text-gray-800 mb-4 text-center">⚪ ESTRATÉGIA: PARES vs ÍMPARES</div>
+                        
+                        <!-- Estatística dos Últimos Sorteios -->
+                        <div id="estatisticaUltimoSorteio" class="mb-4 p-3 bg-blue-100 border border-blue-300 rounded-lg text-center">
+                            <div class="text-sm font-medium text-blue-800">📊 ÚLTIMOS SORTEIOS TIVERAM:</div>
+                            <div class="text-lg font-bold text-blue-900">
+                                <span id="paresUltimoSorteio" class="text-green-600">6</span> PARES + 
+                                <span id="imparesUltimoSorteio" class="text-purple-600">6</span> ÍMPARES
+                            </div>
+                            <div class="text-xs text-blue-700">👆 Use como referência para sua estratégia (2 sorteios)</div>
+                        </div>
+                        
+                        <!-- Contador Visual Atual -->
+                        <div class="grid grid-cols-2 gap-6 mb-4">
+                            <div class="text-center p-4 bg-green-100 rounded-lg border-2 border-green-300">
+                                <div class="text-4xl font-bold text-green-600 contador-destaque" id="paresAtuais">0</div>
+                                <div class="text-lg font-bold text-green-700">PARES</div>
+                                <div class="text-sm text-green-600">🎯 Meta: <span id="metaPares" class="font-bold">3</span></div>
+                                <div class="text-xs text-green-500">2, 4, 6, 8, 10...</div>
+                            </div>
+                            <div class="text-center p-4 bg-purple-100 rounded-lg border-2 border-purple-300">
+                                <div class="text-4xl font-bold text-purple-600 contador-destaque" id="imparesAtuais">0</div>
+                                <div class="text-lg font-bold text-purple-700">ÍMPARES</div>
+                                <div class="text-sm text-purple-600">🎯 Meta: <span id="metaImpares" class="font-bold">3</span></div>
+                                <div class="text-xs text-purple-500">1, 3, 5, 7, 9...</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Status da Estratégia -->
+                        <div id="statusEstrategia" class="text-center p-3 rounded-lg font-bold text-lg bg-gray-100 text-gray-700">
+                            🎯 Selecione números para ver sua estratégia
+                        </div>
+                        
+                        <!-- Dica Dinâmica -->
+                        <div id="dicaEstrategia" class="mt-3 text-center text-sm bg-yellow-100 border border-yellow-300 rounded p-2 text-yellow-800">
+                            💡 <strong>Dica:</strong> Na Dupla Sena há 25 pares e 25 ímpares disponíveis (01-50)
+                        </div>
+                    </div>
+
+                    <!-- Análise Complementar -->
                     <div id="analiseJogo" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="text-sm font-medium text-blue-800 mb-2">📊 Status do Jogo:</div>
+                        <div class="text-sm font-medium text-blue-800 mb-2">📊 Análise Complementar:</div>
                         <div class="grid grid-cols-2 gap-2 text-xs">
                             <div>Números selecionados: <span id="numerosCount" class="font-bold">0/6</span></div>
                             <div>Dígitos diferentes: <span id="digitosCount" class="font-bold">0</span></div>
@@ -270,6 +341,10 @@
                     <!-- Grid de Números 1-50 -->
                     <div class="mb-4">
                         <label class="block text-duplasena font-medium mb-3">Selecione 6 Números (01-50):</label>
+                        <div class="text-xs mb-2 text-gray-600">
+                            <span class="text-green-600">●</span> Verde = Pares (25 disponíveis) | 
+                            <span class="text-purple-600">●</span> Roxo = Ímpares (25 disponíveis)
+                        </div>
                         <div id="gridNumeros" class="grid grid-cols-7 gap-1 max-h-64 overflow-y-auto">
                             <!-- Números de 01 a 50 serão gerados aqui -->
                         </div>
@@ -398,12 +473,23 @@
                     <div class="bg-pink-50 border border-pink-200 rounded-lg p-4">
                         <h3 class="text-xl font-bold text-pink-800 mb-3">📋 Passo a Passo:</h3>
                         <div class="space-y-3 text-pink-700">
-                            <p><strong>1. Uma aposta, duas chances:</strong> 6 números valem para 2 sorteios</p>
-                            <p><strong>2. Selecione os números:</strong> Escolha 6 números de 01 a 50</p>
-                            <p><strong>3. Dupla premiação:</strong> Pode ganhar nos dois sorteios simultaneamente</p>
-                            <p><strong>4. Faixas duplas:</strong> 4 faixas para cada sorteio (8 no total)</p>
-                            <p><strong>5. Custo único:</strong> R$ 2,50 para participar dos 2 sorteios</p>
+                            <p><strong>1. Estratégia Par/Ímpar:</strong> Veja quantos pares e ímpares saíram nos últimos sorteios</p>
+                            <p><strong>2. Uma aposta, duas chances:</strong> 6 números valem para 2 sorteios</p>
+                            <p><strong>3. Acompanhe o contador:</strong> Veja em tempo real sua distribuição pares/ímpares</p>
+                            <p><strong>4. Dupla premiação:</strong> Pode ganhar nos dois sorteios simultaneamente</p>
+                            <p><strong>5. Análise automática:</strong> Sabe se está seguindo a estratégia</p>
                             <p><strong>6. Download:</strong> Exporte seus jogos em HTML, TXT ou XLSX</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <h3 class="text-xl font-bold text-purple-800 mb-3">⚪ Estratégia de Pares e Ímpares (Dupla Sena):</h3>
+                        <div class="space-y-2 text-purple-700">
+                            <p><strong>📊 Números disponíveis:</strong> 01 a 50 (25 pares + 25 ímpares)</p>
+                            <p><strong>🎯 Meta dupla:</strong> Baseada nos 2 últimos sorteios combinados</p>
+                            <p><strong>📈 Contador gigante:</strong> Veja claramente quantos pares/ímpares selecionou</p>
+                            <p><strong>✅ Dupla estratégia:</strong> Mesmo jogo vale para 2 sorteios independentes</p>
+                            <p><strong>💡 Feedback inteligente:</strong> "Faltam: 2 pares, 1 ímpar" em tempo real</p>
                         </div>
                     </div>
 
@@ -429,16 +515,6 @@
                         </div>
                     </div>
 
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <h3 class="text-xl font-bold text-blue-800 mb-3">🎯 Análise de Dígitos:</h3>
-                        <div class="space-y-2 text-blue-700">
-                            <p><strong>Como contamos:</strong> Todos os dígitos únicos (0-9) que aparecem nos números</p>
-                            <p><strong>Exemplo:</strong> 05 12 27 34 45 = dígitos 0, 1, 2, 3, 4, 5, 7 = 7 dígitos diferentes</p>
-                            <p><strong>Dupla análise:</strong> Mesmo jogo concorre em 2 sorteios diferentes</p>
-                            <p><strong>Sugestão:</strong> Combine padrões dos últimos 2 sorteios</p>
-                        </div>
-                    </div>
-
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <h3 class="text-xl font-bold text-green-800 mb-3">💰 Sistema de Premiação:</h3>
                         <div class="space-y-3">
@@ -455,10 +531,6 @@
                                 <div><strong>Valor da aposta:</strong> R$ 2,50 (para os 2 sorteios)</div>
                                 <div><strong>Desenhos:</strong> Terças, Quintas e Sábados</div>
                                 <div><strong>Maior diferencial:</strong> Duas chances com uma aposta!</div>
-                            </div>
-                            
-                            <div class="text-xs text-green-600">
-                                🎲 <strong>Dica:</strong> Distribua números por todas as faixas (1-12, 13-25, 26-37, 38-50)!
                             </div>
                         </div>
                     </div>
@@ -580,11 +652,55 @@
             document.querySelector('.text-2xl.font-bold.text-duplasena').textContent = 
                 `Prêmio Estimado: ${formatarMoeda(data.valorEstimadoProximoConcurso || 3400000)}`;
 
-            // Analisar dígitos dos últimos sorteios para sugestões
-            analisarDigitosUltimoSorteio([...primeiro, ...segundo]);
+            // 🎯 NOVA FUNCIONALIDADE PRINCIPAL: Analisar pares/ímpares dos últimos sorteios
+            analisarParesImparesUltimoSorteio([...primeiro, ...segundo]);
             
             // Identificar números sorteados
             identificarNumerosSorteados([...primeiro, ...segundo]);
+        }
+
+        // 🎯 NOVA FUNCIONALIDADE PRINCIPAL: Analisar pares/ímpares dos últimos sorteios
+        function analisarParesImparesUltimoSorteio(numeros) {
+            const digitos = new Set();
+            let paresUltimoSorteio = 0;
+            let imparesUltimoSorteio = 0;
+            
+            numeros.forEach(num => {
+                const numero = parseInt(num);
+                const numStr = numero.toString().padStart(2, '0');
+                
+                // Adicionar cada dígito individual
+                for (let digit of numStr) {
+                    digitos.add(parseInt(digit));
+                }
+                
+                // Contar pares e ímpares
+                if (numero % 2 === 0) {
+                    paresUltimoSorteio++;
+                } else {
+                    imparesUltimoSorteio++;
+                }
+            });
+            
+            // Armazenar dados globalmente
+            window.digitosUltimoSorteio = digitos.size;
+            window.paresUltimoSorteio = paresUltimoSorteio;
+            window.imparesUltimoSorteio = imparesUltimoSorteio;
+            
+            // 🎯 CALCULAR META BASEADA NA PROPORÇÃO DOS ÚLTIMOS SORTEIOS (para 6 números)
+            const totalNumeros = paresUltimoSorteio + imparesUltimoSorteio;
+            const proporcaoPares = paresUltimoSorteio / totalNumeros;
+            const metaPares = Math.round(proporcaoPares * 6);
+            const metaImpares = 6 - metaPares;
+            
+            // 🎯 ATUALIZAR INTERFACE COM OS DADOS ESTATÍSTICOS
+            document.getElementById('paresUltimoSorteio').textContent = paresUltimoSorteio;
+            document.getElementById('imparesUltimoSorteio').textContent = imparesUltimoSorteio;
+            document.getElementById('metaPares').textContent = metaPares;
+            document.getElementById('metaImpares').textContent = metaImpares;
+            
+            console.log(`Últimos 2 sorteios: ${numeros.join(' ')} = ${digitos.size} dígitos: ${Array.from(digitos).sort().join(' ')} | Pares: ${paresUltimoSorteio}, Ímpares: ${imparesUltimoSorteio} | Meta: ${metaPares}P/${metaImpares}I`);
+            atualizarContadorParesImpares();
         }
 
         // Identificar números sorteados
@@ -628,14 +744,11 @@
                     btn.classList.add('sorteado');
                     
                     if (permitir) {
-                        // Checkbox MARCADO: HABILITAR números sorteados
                         btn.classList.remove('disabled');
                         btn.onclick = () => toggleNumero(numero);
                     } else {
-                        // Checkbox DESMARCADO (padrão): DESABILITAR números sorteados
                         btn.classList.add('disabled');
                         btn.onclick = () => {
-                            // Modal explicativo ao invés de alert()
                             const modal = document.createElement('div');
                             modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
                             modal.innerHTML = `
@@ -689,29 +802,15 @@
             });
         }
 
-        // Analisar dígitos do último sorteio
-        function analisarDigitosUltimoSorteio(numeros) {
-            const digitos = new Set();
-            numeros.forEach(num => {
-                const numStr = num.toString().padStart(2, '0');
-                // Adicionar cada dígito individual
-                for (let digit of numStr) {
-                    digitos.add(parseInt(digit));
-                }
-            });
-            
-            window.digitosUltimoSorteio = digitos.size;
-            console.log(`Últimos sorteios: ${numeros.join(' ')} = ${digitos.size} dígitos: ${Array.from(digitos).sort().join(' ')}`);
-            atualizarSugestaoDigitos();
-        }
-
         // Inicializar interface
         function inicializarInterface() {
+            numerosSelecionados = [];
+            
             criarGridNumeros();
-            atualizarAnaliseJogo();
+            atualizarContadorParesImpares();
         }
 
-        // Criar grid de números 1-50
+        // Criar grid de números 1-50 com destaque para pares/ímpares
         function criarGridNumeros() {
             const grid = document.getElementById('gridNumeros');
             grid.innerHTML = '';
@@ -719,10 +818,96 @@
             for (let i = 1; i <= 50; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'numero-duplasena';
+                
+                // 🎯 DESTACAR PARES E ÍMPARES VISUALMENTE
+                if (i % 2 === 0) {
+                    btn.classList.add('par');
+                } else {
+                    btn.classList.add('impar');
+                }
+                
                 btn.textContent = i.toString().padStart(2, '0');
                 btn.onclick = () => toggleNumero(i);
                 grid.appendChild(btn);
             }
+        }
+
+        // 🎯 NOVA FUNCIONALIDADE PRINCIPAL: Atualizar contador de pares/ímpares
+        function atualizarContadorParesImpares() {
+            const paresAtuais = numerosSelecionados.filter(num => num % 2 === 0).length;
+            const imparesAtuais = numerosSelecionados.filter(num => num % 2 !== 0).length;
+            const metaPares = parseInt(document.getElementById('metaPares').textContent) || 3;
+            const metaImpares = parseInt(document.getElementById('metaImpares').textContent) || 3;
+            
+            // Atualizar contadores visuais
+            document.getElementById('paresAtuais').textContent = paresAtuais;
+            document.getElementById('imparesAtuais').textContent = imparesAtuais;
+            
+            // Aplicar animação de destaque
+            document.getElementById('paresAtuais').classList.add('contador-destaque');
+            document.getElementById('imparesAtuais').classList.add('contador-destaque');
+            
+            setTimeout(() => {
+                document.getElementById('paresAtuais').classList.remove('contador-destaque');
+                document.getElementById('imparesAtuais').classList.remove('contador-destaque');
+            }, 500);
+            
+            // 🎯 AVALIAR ESTRATÉGIA E MOSTRAR STATUS
+            const totalSelecionados = numerosSelecionados.length;
+            const statusEl = document.getElementById('statusEstrategia');
+            const dicaEl = document.getElementById('dicaEstrategia');
+            
+            if (totalSelecionados === 0) {
+                statusEl.textContent = '🎯 Selecione números para ver sua estratégia';
+                statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-gray-100 text-gray-700';
+                dicaEl.innerHTML = '💡 <strong>Dica:</strong> Na Dupla Sena há 25 pares e 25 ímpares disponíveis (01-50)';
+            } else {
+                // Avaliar se está seguindo a estratégia
+                const diferencaPares = Math.abs(paresAtuais - metaPares);
+                const diferencaImpares = Math.abs(imparesAtuais - metaImpares);
+                
+                if (totalSelecionados < 6) {
+                    // Ainda selecionando
+                    const paresRestantes = Math.max(0, metaPares - paresAtuais);
+                    const imparesRestantes = Math.max(0, metaImpares - imparesAtuais);
+                    
+                    if (paresRestantes > 0 && imparesRestantes > 0) {
+                        statusEl.textContent = `📍 Faltam: ${paresRestantes} pares, ${imparesRestantes} ímpares`;
+                        statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-blue-100 text-blue-800';
+                        dicaEl.innerHTML = `💡 <strong>Continue:</strong> Selecione mais ${paresRestantes} pares e ${imparesRestantes} ímpares para seguir a estratégia`;
+                    } else if (paresRestantes > 0) {
+                        statusEl.textContent = `📍 Faltam: ${paresRestantes} pares`;
+                        statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-green-100 text-green-800';
+                        dicaEl.innerHTML = `💡 <strong>Quase lá:</strong> Selecione mais ${paresRestantes} números pares`;
+                    } else if (imparesRestantes > 0) {
+                        statusEl.textContent = `📍 Faltam: ${imparesRestantes} ímpares`;
+                        statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-purple-100 text-purple-800';
+                        dicaEl.innerHTML = `💡 <strong>Quase lá:</strong> Selecione mais ${imparesRestantes} números ímpares`;
+                    } else {
+                        statusEl.textContent = '✅ Estratégia completa! Continue selecionando...';
+                        statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-yellow-100 text-yellow-800';
+                        dicaEl.innerHTML = `💡 <strong>Perfeito:</strong> Você já tem a distribuição ideal de pares/ímpares!`;
+                    }
+                } else {
+                    // 6 números selecionados - avaliar resultado final
+                    if (diferencaPares === 0 && diferencaImpares === 0) {
+                        statusEl.textContent = '🎯 ESTRATÉGIA PERFEITA! Distribuição baseada nos últimos sorteios';
+                        statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-green-200 text-green-800 meta-atingida';
+                        dicaEl.innerHTML = `🏆 <strong>Excelente:</strong> Sua distribuição segue a proporção dos últimos sorteios!`;
+                    } else if (diferencaPares <= 1 && diferencaImpares <= 1) {
+                        statusEl.textContent = '✅ Estratégia muito boa! Distribuição similar';
+                        statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-green-100 text-green-800';
+                        dicaEl.innerHTML = `👍 <strong>Ótimo:</strong> Sua distribuição está bem próxima da estatística`;
+                    } else {
+                        statusEl.textContent = '⚠️ Estratégia diferente da estatística';
+                        statusEl.className = 'text-center p-3 rounded-lg font-bold text-lg bg-red-100 text-red-800 meta-excedida';
+                        dicaEl.innerHTML = `⚡ <strong>Atenção:</strong> Você está divergindo da estratégia estatística`;
+                    }
+                }
+            }
+            
+            // Atualizar análise complementar
+            atualizarAnaliseJogo();
         }
 
         // Toggle seleção de número
@@ -739,7 +924,7 @@
                 btn.classList.add('selecionado');
             }
             
-            atualizarAnaliseJogo();
+            atualizarContadorParesImpares();
             validarBotaoAdicionar();
         }
 
@@ -828,7 +1013,7 @@
             document.querySelectorAll('.numero-duplasena').forEach(btn => {
                 btn.classList.remove('selecionado');
             });
-            atualizarAnaliseJogo();
+            atualizarContadorParesImpares();
             validarBotaoAdicionar();
         }
 
@@ -849,7 +1034,7 @@
                 btn.classList.add('selecionado');
             }
             
-            atualizarAnaliseJogo();
+            atualizarContadorParesImpares();
             validarBotaoAdicionar();
         }
 
@@ -870,7 +1055,9 @@
                         }
                     });
                     return digitos.size;
-                })()
+                })(),
+                pares: numerosSelecionados.filter(n => n % 2 === 0).length,
+                impares: numerosSelecionados.filter(n => n % 2 !== 0).length
             };
             
             jogosAdicionados.push(jogo);
@@ -903,6 +1090,8 @@
                         <span class="font-bold text-duplasena">Jogo ${index + 1}</span>
                         <div class="flex gap-2">
                             <span class="digito-badge">${jogo.digitosDiferentes} dígitos</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">${jogo.pares || 0}P</span>
+                            <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">${jogo.impares || 0}I</span>
                             <button onclick="removerJogo(${jogo.id})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
                                 🗑️
                             </button>
@@ -933,7 +1122,6 @@
         function limparTodosJogos() {
             if (jogosAdicionados.length === 0) return;
             
-            // Modal customizado ao invés de confirm()
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             modal.innerHTML = `
@@ -976,7 +1164,6 @@
         // Downloads
         function downloadJogos(formato) {
             if (jogosAdicionados.length === 0) {
-                // Modal customizado ao invés de alert()
                 const modal = document.createElement('div');
                 modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
                 modal.innerHTML = `
@@ -1027,6 +1214,7 @@
                  border-radius: 50%; text-align: center; line-height: 35px; margin: 2px; font-weight: bold; font-size: 14px; }
         .total { text-align: center; margin-top: 20px; font-size: 18px; font-weight: bold; color: #BA184A; }
         .dupla-info { background: #fbbf24; color: #92400e; padding: 8px 16px; border-radius: 8px; display: inline-block; margin: 10px 0; }
+        .pares-impares { font-size: 12px; color: #666; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -1043,7 +1231,9 @@
         <div>
             ${jogo.numeros.map(num => `<span class="numero">${num.toString().padStart(2, '0')}</span>`).join('')}
         </div>
-        <p><small>${jogo.digitosDiferentes} dígitos diferentes - Vale para 1º e 2º sorteios</small></p>
+        <div class="pares-impares">
+            ${jogo.digitosDiferentes} dígitos diferentes | ${jogo.pares || 0} pares, ${jogo.impares || 0} ímpares | Vale para 1º e 2º sorteios
+        </div>
     </div>`;
             });
             
@@ -1075,7 +1265,7 @@
         // Download XLSX
         function downloadXLSX(jogos) {
             const dados = [
-                ['Jogo', 'Números', 'Dígitos Diferentes', 'Custo', 'Observação']
+                ['Jogo', 'Números', 'Dígitos Diferentes', 'Pares', 'Ímpares', 'Custo', 'Observação']
             ];
             
             jogos.forEach((jogo, index) => {
@@ -1083,13 +1273,15 @@
                     `Jogo ${index + 1}`,
                     jogo.numeros.map(n => n.toString().padStart(2, '0')).join(' - '),
                     jogo.digitosDiferentes,
+                    jogo.pares || 0,
+                    jogo.impares || 0,
                     jogo.custo,
                     'Vale para 2 sorteios'
                 ]);
             });
             
             const total = jogos.length * custoJogo;
-            dados.push(['', 'TOTAL:', '', total, `${jogos.length} jogo(s)`]);
+            dados.push(['', 'TOTAL:', '', '', '', total, `${jogos.length} jogo(s)`]);
             
             const ws = XLSX.utils.aoa_to_sheet(dados);
             const wb = XLSX.utils.book_new();
